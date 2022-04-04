@@ -3410,6 +3410,14 @@
     "path-browserify" "^1.0.0"
     "url-parse" "^1.4.4"
 
+"expo-background-fetch@^10.1.1":
+  "integrity" "sha512-O6bC8KyaZx7GVFEIO10YTz36gCAFTiBLITNSaqnS+CBCUIfTaCNxz9YXfIc0ESegFuDEElGOFxRp2wWop6PERw=="
+  "resolved" "https://registry.npmjs.org/expo-background-fetch/-/expo-background-fetch-10.1.1.tgz"
+  "version" "10.1.1"
+  dependencies:
+    "@expo/config-plugins" "^4.0.2"
+    "expo-task-manager" "~10.1.0"
+
 "expo-constants@~13.0.2":
   "integrity" "sha512-vGs/kI65vplPFvG8z4W1ariGEtVHHp9Avl28G0zJprt2v/q1E/BnXjwvFSBPc1GB+Zb/7crWSHWRwjaFULBjsg=="
   "resolved" "https://registry.npmjs.org/expo-constants/-/expo-constants-13.0.2.tgz"
@@ -3470,7 +3478,7 @@
     "compare-versions" "^3.4.0"
     "invariant" "^2.2.4"
 
-"expo-task-manager@^10.1.1":
+"expo-task-manager@^10.1.1", "expo-task-manager@~10.1.0":
   "integrity" "sha512-qnI0TFOFjnc16NFlQ/sYMpkUAFt9U0ju76HJlrJbQw1j3wydkfG+WT/63tYnVxpCUwCx0nUdWRJZETVC18/fjQ=="
   "resolved" "https://registry.npmjs.org/expo-task-manager/-/expo-task-manager-10.1.1.tgz"
   "version" "10.1.1"

@@ -2,9 +2,11 @@ import React, {useState, useEffect} from 'react';
 import {Text, View, StyleSheet, Button} from 'react-native';
 import * as Location from 'expo-location';
 import * as TaskManager from 'expo-task-manager';
+import * as BackgroundFetch from 'expo-background-fetch';
 
 const LOCATION_TASK_NAME = 'LOCATION_TASK_NAME';
 let foregroundSubscription = null;
+const BACKGROUND_FETCH_TASK = 'background-fetch';
 
 // 위치 추적을 위한 백그라운드 태스크 작업 정의
 TaskManager.defineTask(LOCATION_TASK_NAME, async ({data, error}) => {
@@ -22,9 +24,38 @@ TaskManager.defineTask(LOCATION_TASK_NAME, async ({data, error}) => {
   }
 });
 
+// 1. Define the task by providing a name and the function that should be executed
+// Note: This needs to be called in the global scope (e.g outside of your React components)
+TaskManager.defineTask(BACKGROUND_FETCH_TASK, async () => {
+  foregroundSubscription = await Location.watchPositionAsync(
+    {
+      // 더 나은 로그를 위해, the most sensitive option으로 accuracy 조정
+      accuracy: Location.Accuracy.BestForNavigation,
+    },
+    location => {
+      let today = new Date();
+      console.log('cur time****', today.toLocaleTimeString());
+      console.log('cur location===', location.coords);
+    },
+  );
+});
+
 export default function App() {
   // 위치 정보 정의: {latitude: number, longitude: number}
   const [position, setPosition] = useState(null);
+
+  // background fetch
+  const [isRegistered, setIsRegistered] = useState(false);
+  const [status, setStatus] = useState(null);
+
+  const checkStatusAsync = async () => {
+    const status = await BackgroundFetch.getStatusAsync();
+    const isRegistered = await TaskManager.isTaskRegisteredAsync(
+      BACKGROUND_FETCH_TASK,
+    );
+    setStatus(status);
+    setIsRegistered(isRegistered);
+  };
 
   // 앱 시작한 후 바로 권한 확인
   useEffect(() => {
@@ -34,6 +65,8 @@ export default function App() {
         await Location.requestBackgroundPermissionsAsync();
     };
     requestPermissions();
+    // background fetch
+    checkStatusAsync();
   }, []);
 
   // foreground에서 위치 추적 시작
@@ -113,6 +146,31 @@ export default function App() {
       console.log('Location tacking stopped');
     }
   };
+
+  const startBackFetch = async () => {
+    console.log('start back fetch');
+    return BackgroundFetch.registerTaskAsync(BACKGROUND_FETCH_TASK, {
+      minimumInterval: 5, // 1 minutes
+      stopOnTerminate: false, // android only,
+      startOnBoot: true, // android only
+    });
+  };
+
+  const stopBackFetch = async () => {
+    console.log('stop back fetch');
+    return BackgroundFetch.unregisterTaskAsync(BACKGROUND_FETCH_TASK);
+  };
+
+  const toggleFetchTask = async () => {
+    if (isRegistered) {
+      await stopBackFetch();
+    } else {
+      await startBackFetch();
+    }
+
+    checkStatusAsync();
+  };
+
   return (
     <View style={styles.container}>
       <Text>Longitude: {position?.longitude}</Text>
@@ -138,8 +196,17 @@ export default function App() {
       <View style={styles.separator} />
       <Button
         onPress={stopBackgroundUpdate}
-        title="Stop in foreground"
+        title="Stop in background"
         color="red"
+      />
+      <View style={styles.separator} />
+      <Button
+        title={
+          isRegistered
+            ? 'Unregister BackgroundFetch task'
+            : 'Register BackgroundFetch task'
+        }
+        onPress={toggleFetchTask}
       />
     </View>
   );

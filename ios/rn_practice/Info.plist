@@ -43,6 +43,8 @@
 	<string>Allow $(PRODUCT_NAME) to use your location</string>
 	<key>UIBackgroundModes</key>
 	<array>
+		<string>fetch</string>
+		<string>location</string>
 		<string>remote-notification</string>
 	</array>
 	<key>UILaunchStoryboardName</key>
